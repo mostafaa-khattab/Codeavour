@@ -22,9 +22,9 @@ export const addTeamSchema = Joi.object({
         'number.base': 'Team number must be a valid number',
         'any.required': 'Team number is required'
     }),
-    is_there_lecturer: Joi.boolean().required().messages({
-        'any.required': 'Please indicate if there is a lecturer'
-    }),
+    // is_there_lecturer: Joi.boolean().required().messages({
+    //     'any.required': 'Please indicate if there is a lecturer'
+    // }),
     lecturerName: Joi.string().min(2).max(100).optional().allow('').messages({
         'string.min': 'Lecturer name must be at least 2 characters long',
         'string.max': 'Lecturer name must be at most 100 characters long',
@@ -56,10 +56,6 @@ export const addTeamSchema = Joi.object({
     ).min(1).required().messages({
         'array.min': 'At least one student is required',
         'any.required': 'Students are required'
-    }),
-    paymentScreenshot: Joi.string().required().messages({
-        'string.empty': 'Payment screenshot is required',
-        'any.required': 'Payment screenshot is required'
     }),
     comment: Joi.string().optional().allow('').messages({
         'string.empty': 'Comment cannot be empty'

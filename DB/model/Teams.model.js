@@ -23,12 +23,6 @@ const teamSchema = new Schema({
         type: Number,
         required: [true, 'Team number is required']
     },
-
-    is_there_lecturer: {
-        type: Boolean,
-        required: [true, 'This field is required'],
-        default: false
-    },
     lecturerName: {
         type: String,
         trim: true

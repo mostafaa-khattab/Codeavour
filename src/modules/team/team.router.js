@@ -10,8 +10,8 @@ router.get('/', teamController.getAllTeam)
 
 // team
 router.post('/add',
-    uploadCloud({ fileType: fileVaildation.image, format: "Image" }).single("paymentScreenShot"),
-    validation(validators.teamValidationSchema),
+    uploadCloud({ fileType: fileVaildation.image, format: "Image" }).single("paymentScreenshot"),
+    validation(validators.addTeamSchema),
     teamController.addTeam)
 
 
