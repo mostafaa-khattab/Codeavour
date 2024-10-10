@@ -18,10 +18,10 @@ export const signupUser = asyncHandler(async (req, res, next) => {
     }
 
     // hash password
-    const hashPassword = hash({ plaintext: password })
+    // const hashPassword = hash({ plaintext: password })
 
     // save
-    const user = await userModel.create({ username, role, password: hashPassword })
+    const user = await userModel.create({ username, role, password })
 
     await user.save()
 
@@ -38,7 +38,8 @@ export const loginUser = asyncHandler(async (req, res, next) => {
         return next(new Error("username not exist", { cause: 404 }));
     }
 
-    if (!comparePassword({ plaintext: password, hashValue: user.password })) {
+    // if (!comparePassword({ plaintext: password, hashValue: user.password })) {
+    if (password != user.password) {
         return next(new Error("In-valid login date", { cause: 400 }));
     }
 
@@ -61,11 +62,8 @@ export const signupOrganization = asyncHandler(async (req, res, next) => {
     const cloud = await cloudinary.uploader.upload(req.file.path, { folder: 'backend/organizationLogo' });
     req.body.organizationLogo = cloud.secure_url;
 
-    const hashPassword = await hash({ plaintext: req.body.password });
-
     const organization = await organizationModel.create({
         ...req.body,
-        password: hashPassword,
     });
 
     // '*/2 * * * *', ==> after 2 minutes
@@ -120,9 +118,14 @@ export const confirmAccountOrganization = asyncHandler(async (req, res, next) =>
     }
 })
 
+
 export const loginOrganization = asyncHandler(async (req, res, next) => {
+
+    console.log(req.body);
+
     const { emailOrUsername, password } = req.body;
 
+    // Check if organization exists by either email or username
     const organization = await organizationModel.findOne({
         $or: [
             { email: emailOrUsername },
@@ -130,18 +133,22 @@ export const loginOrganization = asyncHandler(async (req, res, next) => {
         ]
     });
 
+    // If organization is not found
     if (!organization) {
         return next(new Error("Email or Username does not exist", { cause: 404 }));
     }
 
+    // If the email is not confirmed
     if (!organization.emailConfirm) {
         return next(new Error("Account not verified or cannot log in", { cause: 403 }));
     }
 
-    if (!comparePassword({ plaintext: password, hashValue: organization.password })) {
+    // If password is invalid
+    if (password != organization.password) {
         return next(new Error("Invalid login credentials", { cause: 400 }));
     }
 
+    // Generate token if login is successful
     const token = generateToken({
         payload: {
             id: organization._id,
@@ -151,8 +158,10 @@ export const loginOrganization = asyncHandler(async (req, res, next) => {
         }
     });
 
+    // Send successful response
     return res.status(200).json({ message: "success", organization, token });
 });
+
 
 
 // parent
@@ -228,7 +237,7 @@ export const forgetPassword = asyncHandler(async (req, res, next) => {
 
     if (code != organization?.code || organization.code == null || code == null) return next(new Error("In-valid Code", { cause: 404 }))
 
-    if (bcrypt.compareSync(req.body.password, organization.password)) return next(new Error("Please ensure that your new password is different from your old password for security reasons", { cause: 404 }))
+    if (req.body.password != organization.password) return next(new Error("Please ensure that your new password is different from your old password for security reasons", { cause: 404 }))
     organization = await organizationModel.findOneAndUpdate({
         $or: [
             { email: emailOrUsername },
