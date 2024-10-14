@@ -114,7 +114,7 @@ export const confirmAccountOrganization = asyncHandler(async (req, res, next) =>
     if (!user.matchedCount) {
         return res.status(404).send(`<h1>Not register account.</h1>`)
     } else {
-        return res.status(404).redirect(`https://couponesta.com/`)
+        return res.status(404).redirect(`https://codeavour.surge.sh/`)
     }
 })
 
@@ -208,7 +208,7 @@ export const sendCode = asyncHandler(async (req, res, next) => {
 
         await organizationModel.updateOne({ email: organization.email }, { code: null })
 
-    }, 2 * 60000)
+    }, 10 * 60000)
 
     organization && res.status(202).json({ message: " success" })
 
@@ -237,7 +237,7 @@ export const forgetPassword = asyncHandler(async (req, res, next) => {
 
     if (code != organization?.code || organization.code == null || code == null) return next(new Error("In-valid Code", { cause: 404 }))
 
-    if (req.body.password != organization.password) return next(new Error("Please ensure that your new password is different from your old password for security reasons", { cause: 404 }))
+    if (req.body.password == organization.password) return next(new Error("Please ensure that your new password is different from your old password for security reasons", { cause: 404 }))
     organization = await organizationModel.findOneAndUpdate({
         $or: [
             { email: emailOrUsername },
